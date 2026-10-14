@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Projet Apiculture - Connexion</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-connexion">
+    <!-- page de login etudiant -->
+    <div class="box-login">
+        <h2>Gestion du rucher</h2>
+        <p>connexion apiculteur</p>
+
+        <!-- message erreur si faux -->
+        <div id="erreur" style="display: none; color: red; margin-bottom: 10px;">
+            identifiant ou mot de passe incorrect
+        </div>
+
+        <form id="form-login">
+            <div>
+                <label>identifiant</label><br>
+                <input type="text" id="username" placeholder="ex: apiculteur">
+            </div>
+            <br>
+            <div>
+                <label>mot de passe</label><br>
+                <input type="password" id="password" placeholder="1234">
+            </div>
+            <br>
+            <button type="submit">se connecter</button>
+        </form>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

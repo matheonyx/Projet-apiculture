@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Projet Apiculture - Dashboard</title>
+    <!-- leaflet pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- menu du haut -->
+    <header class="topbar">
+        <h1>Mon rucher</h1>
+        <div>
+            <button id="btn-add-ruche">ajouter ruche</button>
+            <button id="btn-logout">deconnexion</button>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <!-- zone pour la carte leaflet -->
+        <div id="map"></div>
+
+        <!-- tableau de test provisoire pour les ruches -->
+        <h3>Liste des ruches</h3>
+        <table border="1" cellpadding="6" class="table-ruches">
+            <thead>
+                <tr>
+                    <th>nom</th>
+                    <th>latitude</th>
+                    <th>longitude</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody id="liste-ruches">
+                <!-- donnees de test en dur -->
+                <tr>
+                    <td>ruche sud</td>
+                    <td>49.8485</td>
+                    <td>3.2874</td>
+                    <td><button>voir</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- modale ajout de ruche a finir -->
+        <div id="modal-ajout" class="fenetre-modale" style="display: none;">
+            <div class="modale-contenu">
+                <h4>ajouter une ruche</h4>
+                <p>formulaire en cours de developpement</p>
+                <input type="text" placeholder="nom de la ruche"><br><br>
+                <button id="btn-fermer-modal">fermer</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- scripts js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ruches.js"></script>
+</body>
+</html>
