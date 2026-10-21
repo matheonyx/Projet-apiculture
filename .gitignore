@@ -1,4 +1,15 @@
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.bat
+*.cmd
+demarrer*
+console*
