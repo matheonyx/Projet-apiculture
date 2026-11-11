@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Apiculture - Tableau de bord{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block body %}
+<header class="navbar">
+    <div class="navbar-brand">
+        <h2>Mon Rucher</h2>
+    </div>
+    <div class="navbar-actions">
+        <button id="btn-add-ruche" class="btn-primary">
+            <span class="btn-icon">&#10010;</span> add ruche
+        </button>
+        <button id="btn-toggle-view" class="btn-secondary">
+            Afficher Liste
+        </button>
+        <a href="{{ path('app_logout') }}" class="btn-danger" style="text-decoration:none;display:inline-block;">
+            Déconnexion
+        </a>
+    </div>
+</header>
+
+<main class="content-container">
+    <div id="view-map" class="view-panel active">
+        <div id="map"></div>
+    </div>
+
+    <div id="view-list" class="view-panel">
+        <div class="table-container">
+            <h3>Liste des ruches</h3>
+            <table class="table-ruches">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Nom</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-ruches">
+                    {% for ruche in ruches %}
+                    <tr data-id="{{ ruche.id }}">
+                        <td>
+                            <form method="post" action="{{ path('app_ruche_delete', {id: ruche.id}) }}" onsubmit="return confirm('Confirmer la suppression de {{ ruche.nom }} ? Toutes ses interventions et récoltes seront supprimées.');" style="display:inline;">
+                                <button type="submit" class="btn-icon-delete" title="Supprimer la ruche">&#128465;</button>
+                            </form>
+                        </td>
+                        <td><strong>{{ ruche.nom }}</strong></td>
+                        <td>{{ ruche.latitude }}</td>
+                        <td>{{ ruche.longitude }}</td>
+                        <td>
+                            <button class="btn-secondary" onclick="openConsultModal({{ ruche.id }}, '{{ ruche.nom|e('js') }}', {{ ruche.latitude }}, {{ ruche.longitude }})">Consulter</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;color:#888;">Aucune ruche enregistrée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="modal-add-ruche" class="modal">
+    <div class="modal-content">
+        <h3>Ajouter une ruche</h3>
+        <form method="post" action="{{ path('app_ruche_add') }}" id="form-add-ruche">
+            <div class="form-group">
+                <label for="ruche-nom">Nom de la ruche</label>
+                <input type="text" id="ruche-nom" name="nom" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="ruche-lat">Latitude</label>
+                    <input type="number" step="any" id="ruche-lat" name="lat" required>
+                </div>
+                <div class="form-group">
+                    <label for="ruche-lng">Longitude</label>
+                    <input type="number" step="any" id="ruche-lng" name="lng" required>
+                </div>
+            </div>
+            <p class="form-help">Vous pouvez aussi cliquer sur la carte pour définir la position.</p>
+            <div class="modal-buttons">
+                <button type="button" id="btn-cancel-add-ruche" class="btn-secondary">Fermer</button>
+                <button type="submit" class="btn-primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-consult-ruche" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header-custom">
+            <button id="btn-open-production" class="btn-action"># production #</button>
+            <h3 id="consult-ruche-title">Ruche</h3>
+            <button id="btn-close-consult" class="btn-close">&times;</button>
+        </div>
+
+        <div id="add-intervention-box" class="box-add-intervention" style="display: none;">
+            <h4>Nouvelle intervention</h4>
+            <textarea id="intervention-text" placeholder="Description de l'intervention..."></textarea>
+            <div class="intervention-actions">
+                <button id="btn-cancel-intervention" class="btn-secondary">Annuler</button>
+                <button id="btn-save-intervention" class="btn-primary">Enregistrer</button>
+            </div>
+        </div>
+
+        <div class="interventions-list-container">
+            <h4>Historique des interventions</h4>
+            <ul id="list-interventions" class="interventions-list"></ul>
+            <div id="pagination-controls" class="pagination"></div>
+        </div>
+
+        <div class="modal-footer-custom">
+            <button id="btn-trigger-add-intervention" class="btn-action"># add intervention #</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-production" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header-production">
+            <button id="btn-close-production" class="btn-close-left">&times;</button>
+            <h3 id="production-ruche-title">Production & Récoltes</h3>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="chart-canvas" width="600" height="260"></canvas>
+        </div>
+
+        <form id="form-add-recolte" class="form-recolte">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recolte-date">Date de récolte</label>
+                    <input type="date" id="recolte-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="recolte-poids">Poids (en grammes)</label>
+                    <input type="number" id="recolte-poids" min="1" step="1" required>
+                </div>
+            </div>
+            <div class="recolte-submit-row">
+                <button type="submit" class="btn-action"># add #</button>
+                <span id="recolte-total-kg" class="total-kg">Total : 0.00 kg</span>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/app.js"></script>
+{% endblock %}
